@@ -6,6 +6,9 @@ export async function up(knex: Knex): Promise<void> {
     table.text("NumeroPedido").unique().notNullable();
     table.text("DataDoPedido").notNullable();
     table.text("FormaDePagamento").notNullable();
+
+    table.integer('cliente_id').references('cliente.id').notNullable();
+    table.integer('produto_id').references('produto.id').notNullable();
   });
 }
 
