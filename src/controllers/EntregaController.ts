@@ -3,9 +3,19 @@ import connection from "../database/connection";
 
 class EntregaController{
     async TrazTodasAsEntrega(request: Request, response: Response) {
-        const results = await connection("entrega");
-    
-        return response.json(results);
+      const { pedido_id} = request.query;
+
+      const query =  connection("entrega");
+
+      if (pedido_id){
+        query
+          .where({ pedido_id})
+          .join("pedido", "pedido_id", "=", "entrega.pedido_id")
+          .select("entrega.*", "pedido.NumeroPedido");
+      }
+      const results = await query;
+
+      return response.json(results);
       }
       async novaEntrega(request: Request, response: Response) {
         const {

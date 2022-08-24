@@ -5,6 +5,8 @@ export async function up(knex: Knex): Promise<void> {
     table.increments("id");
     table.text("DataDaEntrega").unique().notNullable();
     table.text("Status").notNullable();
+
+    table.integer('pedido_id').references('pedido.id').notNullable();
   });
 }
 

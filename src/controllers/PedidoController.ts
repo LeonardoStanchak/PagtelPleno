@@ -3,17 +3,29 @@ import connection from "../database/connection";
 
 class PedidoController {
   async TrazTodosOsPedidos(request: Request, response: Response) {
-    const results = await connection("pedido");
+    const { cliente_id} = request.query;
 
-    return response.json(results);
+    const pedido = connection("pedido");
+
+    if (cliente_id){
+      pedido
+        .where({ cliente_id})
+        .join("cliente", "cliente.id", "=", "pedido.cliente_id")
+        .select("pedido.*", "cliente.*");
+    }
+    const pedidos = await pedido;
+
+    return response.json(pedidos);
   }
   async novoPedido(request: Request, response: Response) {
-    const { NumeroPedido, DataDoPedido, FormaDePagamento } = request.body;
+    const { NumeroPedido, DataDoPedido, FormaDePagamento, cliente_id,produto_id } = request.body;
 
     const pedido = {
       NumeroPedido,
       DataDoPedido,
       FormaDePagamento,
+      cliente_id,
+      produto_id
     };
 
     const create = await connection("pedido").insert(pedido);
