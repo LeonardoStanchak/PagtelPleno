@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { EntregaController } from '../controllers/EntregaController';
 import { PedidoController } from '../controllers/PedidoController';
 import { ClienteController } from './../controllers/ClienteController';
 import {ProdutoController} from './../controllers/ProdutoController';
@@ -22,4 +23,9 @@ const pedido = new PedidoController();
 router.get('/pedidos', pedido.TrazTodosOsPedidos);
 router.post('/novo/pedido', pedido.novoPedido);
 router.delete('/pedido/:id', pedido.deletaPedido);
+
+const entrega = new EntregaController();
+router.get("/entregas", entrega.TrazTodasAsEntrega);
+router.post("/nova/entrega", entrega.novaEntrega);
+router.post("/atualiza/status/:id", entrega.AtualizaEntrega)
 export default router;
