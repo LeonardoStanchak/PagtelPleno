@@ -1,3 +1,4 @@
+import { createPedidoMensagem } from './../messages/pedido/novoPedidoMessageChannel';
 import { Request, Response } from "express";
 import connection from "../database/connection";
 
@@ -18,6 +19,8 @@ class PedidoController {
     return response.json(pedidos);
   }
   async novoPedido(request: Request, response: Response) {
+    const messageChannel = await createPedidoMensagem()
+    if(messageChannel){
     const { NumeroPedido, DataDoPedido, FormaDePagamento, cliente_id,produto_id } = request.body;
 
     const pedido = {
@@ -28,15 +31,17 @@ class PedidoController {
       produto_id
     };
 
-    const create = await connection("pedido").insert(pedido);
+    const pedidoRabbit = pedido
+    const pedidoJson = JSON.stringify(pedidoRabbit)
+    messageChannel.sendToQueue(process.env.QUEUE_NAME_PEDIDO, Buffer.from(pedidoJson));
 
-    const id = create[0];
+   
 
     return response.json({
-      id,
       ...pedido,
     });
   }
+}
 
   async deletaPedido(request: Request, response: Response) {
     const { id } = request.params;

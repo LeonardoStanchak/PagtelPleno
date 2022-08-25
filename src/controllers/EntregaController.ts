@@ -1,3 +1,5 @@
+import { uptdateEntregaMensagem } from './../messages/pedido/updatePedidoMessageChannel';
+import { createPedidoMensagem } from './../messages/pedido/novoPedidoMessageChannel';
 import { Request, Response } from "express";
 import connection from "../database/connection";
 
@@ -18,27 +20,33 @@ class EntregaController{
       return response.json(results);
       }
       async novaEntrega(request: Request, response: Response) {
+        const messageChannel = await createPedidoMensagem()
+        if(messageChannel){
         const {
           DataDaEntrega,
           Status,
+          pedido_id
         } = request.body;
     
         const entrega = {
             DataDaEntrega,
-          Status
+            Status,
+            pedido_id
         };
     
-        const create = await connection("entrega").insert(entrega);
-    
-        const id = create[0];
+        const entregaRabbit = entrega
+        const entregaJson = JSON.stringify(entregaRabbit)
+        messageChannel.sendToQueue(process.env.QUEUE_NAME_ENTREGA, Buffer.from(entregaJson));
     
         return response.json({
-          id,
           ...entrega,
         });
       }
+    }
     
       async AtualizaEntrega(request: Request, response: Response){
+        const messageChannel = await uptdateEntregaMensagem()
+        if(messageChannel){
         const {
             id
         } = request.params;
@@ -50,14 +58,16 @@ class EntregaController{
             Status
         };
     
-        const Atualiza = await connection('entrega').where({id}).update(AtualizaStatus);
+        const atualizaEntregaRabbit = AtualizaStatus
+        const entregaJson = JSON.stringify(atualizaEntregaRabbit)
+        messageChannel.sendToQueue(process.env.QUEU_NAME_UPDATE_ENTREGA, Buffer.from(entregaJson));
     
         return response.json({
             id,
             ...AtualizaStatus
         });
     
-    
+      }
     }
     
 }

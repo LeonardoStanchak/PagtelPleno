@@ -1,5 +1,7 @@
+import { createClienteMensagem } from '../messages/cliente/novoClienteMessageChannel';
 import { Request, Response } from "express";
 import connection from "../database/connection";
+import { uptdateClienteMensagem } from '../messages/cliente/UpdateClienteMessageChannel';
 
 class ClienteController {
   async TrazTodosOsClientes(request: Request, response: Response) {
@@ -7,7 +9,11 @@ class ClienteController {
 
     return response.json(results);
   }
-  async novoCliente(request: Request, response: Response) {
+
+
+   async novoCliente(request: Request, response: Response) {
+    const messageChannel = await createClienteMensagem()
+    if(messageChannel){
     const {
       NomeCompleto,
       Cpf,
@@ -30,17 +36,20 @@ class ClienteController {
       Referencia,
     };
 
-    const create = await connection("cliente").insert(cliente);
-
-    const id = create[0];
+    const clienteRabbit = cliente
+    const clienteJson = JSON.stringify(clienteRabbit)
+    messageChannel.sendToQueue(process.env.QUEUE_NAME_CLIENTE, Buffer.from(clienteJson));
 
     return response.json({
-      id,
       ...cliente,
     });
+
   }
+}
 
   async AtualizaCadastro(request: Request, response: Response){
+    const messageChannel = await uptdateClienteMensagem()
+    if(messageChannel){
     const {
         id
     } = request.params;
@@ -60,16 +69,21 @@ class ClienteController {
       Referencia,
     };
 
-    const Atualiza = await connection('cliente').where({id}).update(AtualizaCadastro);
+    const atualizaClienteRabbit = AtualizaCadastro
+    const clienteJson = JSON.stringify(atualizaClienteRabbit)
+    messageChannel.sendToQueue(process.env.QUEUE_NAME_UPDATE_CLIENTE, Buffer.from(clienteJson));
+
 
     return response.json({
         id,
         ...AtualizaCadastro
     });
-
+  }
 
 }
 async deletaCliente(request: Request, response: Response){
+  const messageChannel = await uptdateClienteMensagem()
+    if(messageChannel){
     const {
         id
     } = request.params;
@@ -78,6 +92,8 @@ async deletaCliente(request: Request, response: Response){
 
     response.json('deletado com sucesso');
 }
+}
+
 }
 
 
