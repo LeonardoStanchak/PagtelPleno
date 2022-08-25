@@ -9,6 +9,8 @@
     "knex:migration": "knex --knexfile knexfile.ts migrate:latest"
   },
   "dependencies": {
+    "@types/amqplib": "^0.8.2",
+    "amqplib": "^0.10.2",
     "cors": "^2.8.5",
     "express": "^4.18.1",
     "knex": "^2.2.0",
