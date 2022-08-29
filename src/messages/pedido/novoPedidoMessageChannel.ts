@@ -8,7 +8,7 @@ export const createPedidoMensagem = async ():Promise<Channel> =>{
     try {
         const connection = await connect(process.env.AMQP_SERVER)
         const channel = await connection.createChannel()
-        await channel.assertQueue(process.env.QUEUE_NAME_ENTREGA)
+        await channel.assertQueue(process.env.QUEUE_NAME_PEDIDO)
         console.log("Conectado ao RabbitMq")
         return channel
     } catch (error) {
